@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>task queue — todo.muhammadmuddasir.cloud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="scanlines" aria-hidden="true"></div>
+
+<main class="console">
+
+  <header class="console-bar">
+    <div class="console-bar__id">
+      <span class="dot" id="connDot" aria-hidden="true"></span>
+      <span class="eyebrow">task-queue</span>
+      <span class="console-bar__path">/ todo.muhammadmuddasir.cloud</span>
+    </div>
+    <div class="console-bar__stats" id="stats">
+      <span class="stat stat--queued"><span class="stat__n" id="countQueued">0</span> queued</span>
+      <span class="stat stat--shipped"><span class="stat__n" id="countShipped">0</span> shipped</span>
+    </div>
+  </header>
+
+  <section class="prompt-row">
+    <span class="prompt-row__chevron" aria-hidden="true">&gt;</span>
+    <input
+      id="taskInput"
+      class="prompt-row__input"
+      type="text"
+      placeholder="add a task and hit enter…"
+      maxlength="500"
+      autocomplete="off"
+    >
+    <button id="addBtn" class="prompt-row__submit" type="button">queue</button>
+  </section>
+
+  <section class="log" id="log" aria-live="polite">
+    <p class="log__empty" id="emptyState">no tasks queued. add one above to get started.</p>
+    <ul class="log__list" id="taskList"></ul>
+  </section>
+
+  <footer class="status-line">
+    <span id="statusText">connecting to api…</span>
+  </footer>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

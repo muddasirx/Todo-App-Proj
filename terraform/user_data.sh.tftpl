@@ -1,0 +1,55 @@
+#!/bin/bash
+set -euo pipefail
+
+# --- Docker ---
+dnf update -y
+dnf install -y docker jq awscli
+systemctl enable --now docker
+
+mkdir -p /usr/local/lib/docker/cli-plugins
+curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" \
+  -o /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+# --- Fetch DB credentials from Secrets Manager ---
+SECRET_JSON=$(aws secretsmanager get-secret-value \
+  --secret-id "${db_secret_arn}" \
+  --region "${aws_region}" \
+  --query SecretString --output text)
+
+DB_USER=$(echo "$SECRET_JSON" | jq -r .username)
+DB_PASSWORD=$(echo "$SECRET_JSON" | jq -r .password | sed 's/\$/\$\$/g')
+
+INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+
+# --- Authenticate Docker to ECR via the VPC endpoint (no internet required) ---
+aws ecr get-login-password --region "${aws_region}" \
+  | docker login --username AWS --password-stdin "${ecr_registry}"
+
+mkdir -p /opt/todo-app
+cat > /opt/todo-app/docker-compose.yml <<COMPOSE
+services:
+  backend:
+    image: ${docker_image}
+    restart: always
+    ports:
+      - "${app_port}:${app_port}"
+    environment:
+      - DB_HOST=${db_host}
+      - DB_PORT=3306
+      - DB_USER=$${DB_USER}
+      - DB_PASSWORD=$${DB_PASSWORD}
+      - DB_NAME=${db_name}
+      - PORT=${app_port}
+      - CORS_ORIGIN=${cors_origin}
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: "${aws_region}"
+        awslogs-group: "${log_group}"
+        awslogs-stream: "$${INSTANCE_ID}-backend"
+        awslogs-create-group: "true"
+COMPOSE
+
+cd /opt/todo-app
+docker compose up -d
