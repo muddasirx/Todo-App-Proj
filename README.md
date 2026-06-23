@@ -1,46 +1,8 @@
 # Todo App — AWS Architecture (Terraform)
 
-## Architecture Overview
 
-```
-Internet
-   │
-   ├──HTTPS──> Route 53 (muhammadmuddasir.cloud, www.muhammadmuddasir.cloud)
-   │                │
-   │                ▼
-   │           CloudFront Distribution (PriceClass_100)
-   │                │ OAC (Origin Access Control)
-   │                ▼
-   │           S3 Bucket (private, static frontend: HTML/CSS/JS)
-   │
-   └──HTTPS──> Route 53 (api.muhammadmuddasir.cloud)
-                    │
-                    ▼
-               Application Load Balancer (public subnets, AZ-1 + AZ-2)
-               HTTP :80 → 301 redirect to HTTPS
-               HTTPS :443 → forward to Target Group
-                    │
-                    ▼
-               Auto Scaling Group (2–4 x EC2, private subnets, AZ-1 + AZ-2)
-               Amazon Linux 2023 — Docker + docker-compose
-               Node/Express backend container
-                    │
-          ┌─────────┼──────────────────────────────┐
-          │         │                              │
-          ▼         ▼                              ▼
-    VPC Endpoint  VPC Endpoint              VPC Endpoint
-    (ecr.api +    (secretsmanager)          (logs)
-     ecr.dkr +
-     s3 gateway)
-          │         │                              │
-          ▼         ▼                              ▼
-         ECR    Secrets Manager            CloudWatch Logs
-      (container  (RDS master               (/todo-app/backend,
-        image)     password)                 14-day retention)
-                    │
-          ▼
-     RDS MySQL 8.0 (private subnets, AZ-1 + AZ-2, single-AZ instance)
-```
+## Architecture Overview
+![Architecture Diagram](architecture.png)
 
 ---
 
