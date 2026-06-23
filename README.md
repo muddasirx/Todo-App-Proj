@@ -1,5 +1,13 @@
 # Todo App — AWS Architecture (Terraform)
 
+---
+
+## Project Description
+This project is a production-style full-stack Todo application deployed on AWS using a highly available and scalable architecture. The frontend is hosted on Amazon S3 and delivered globally through Amazon CloudFront, while the backend runs as Docker containers on EC2 instances managed by an Auto Scaling Group behind an Application Load Balancer. The application stores data in Amazon RDS MySQL and uses Amazon ECR for container image storage.
+
+The infrastructure is provisioned entirely with Terraform and follows AWS best practices by deploying resources across multiple Availability Zones, using private subnets for backend services, and securing communication through IAM roles, Security Groups, ACM certificates, and Route 53 DNS. VPC Endpoints are used to enable private access to services such as ECR, S3, CloudWatch, Secrets Manager, and Systems Manager, reducing reliance on internet connectivity and improving security.
+
+---
 
 ## Architecture Overview
 ![Architecture Diagram](architecture.png)
